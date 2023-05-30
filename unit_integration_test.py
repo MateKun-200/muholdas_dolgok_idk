@@ -157,7 +157,7 @@ class SatelliteDataTests(unittest.TestCase):
     def test_for_converting_obs_into_netcdf(self):
         obs_file = file_reader(file_name)
         obs_data = gr.load(
-            obs_file, tlim=[very_start_date, very_end_date], meas=['L1C', 'L2W'], use="G")
+            obs_file, tlim=[very_start_date, small_end_date], meas=['L1C', 'L2W'], use="G")
         obs_data.to_netcdf('process.nc')
         a = 10
 
