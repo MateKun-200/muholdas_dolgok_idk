@@ -3,13 +3,12 @@ import georinex as gr
 import numpy as np
 import sys
 import matplotlib.pyplot as plt
-from datetime import datetime, timedelta
 from matplotlib.dates import DateFormatter
 import xarray
 
 # RINEX fájl megadása parancssorból
 rinex_file = sys.argv[1]
-selected_satellite = sys.argv[2]
+selected_satellite = sys.argv[2] if len(sys.argv) > 2 else None
 
 
 file_name_nc = os.path.splitext(rinex_file)[0] + ".nc"
