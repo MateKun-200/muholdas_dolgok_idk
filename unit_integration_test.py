@@ -133,8 +133,9 @@ class SatelliteDataTests(unittest.TestCase):
     def test_for_converting_obs_into_netcdf(self):
         obs_file = file_reader(file_name)
         obs_data = gr.load(
-            obs_file, tlim=[very_start_date, small_end_date], meas=['C1C', 'L1C'], use="E")
+            obs_file, tlim=[very_start_date, very_end_date], meas=['C1C', 'L1C'], use="E")
         obs_data.to_netcdf('process.nc')
+        a = 10
 
     def test_if_saved_netcdf_is_readable(self):
         obs = xarray.open_dataset('process.nc')
@@ -156,6 +157,55 @@ class SatelliteDataTests(unittest.TestCase):
         end_timestamp_nc = time.time()
         nc_time = end_timestamp_nc - start_timestamp_nc
         obs_time = end_timestamp_obs - start_timestamp_obs
+        a = 10
+
+    def test_checking_units(self):
+        obs = xarray.open_dataset('process.nc')
+        obs_C1C = obs["C1C"]
+        # Constants
+        c = 299792458  # Speed of light in meters per second
+        l1_frequency = 1575.42e6  # L1 frequency in Hz
+        # Convert C1C observations to meters
+        wavelength = c / l1_frequency  # Calculate the wavelength in meters
+        # Multiply the observations by the wavelength
+        obs_C1C_meters = obs_C1C * wavelength
+        a = 10
+
+    def test_checking_C1C_to_meter(self):
+        obs = xarray.open_dataset('process.nc')
+        obs_C1C = obs["C1C"]
+        c = 299792458
+        l1_frequency = 1575.42e6
+        wavelength = c / l1_frequency
+        obs_C1C_meters = obs_C1C * wavelength
+        a = 10
+
+    def test_checking_L1C_to_meter(self):
+        obs = xarray.open_dataset('process.nc')
+        obs_L1C = obs["L1C"]
+        c = 299792458
+        l1_frequency = 1227.6e6
+        wavelength = c / l1_frequency
+        obs_L1C_meter = obs_L1C * wavelength
+        a = 10
+
+    def test_if_can_be_plotted_with_meters(self):
+        obs_data = xarray.open_dataset('process.nc')
+        e04_satellite = obs_data.sel(sv='E04').dropna(dim='time', how='all')
+        c1c_values = e04_satellite['C1C']
+        l1c_values = e04_satellite['L1C']
+
+        c = 299792458
+        l1_frequency = 1575.42e6
+        l2_frequency = 1227.6e6
+        wavelength_l1 = c / l1_frequency
+        wavelength_l2 = c / l2_frequency
+        c1c_values_meter = c1c_values * wavelength_l1
+        l1c_values_meter = l1c_values * wavelength_l2
+        c1c_l1c_diff = c1c_values_meter - l1c_values_meter
+
+        plt.plot(c1c_l1c_diff.time, c1c_l1c_diff)
+        plt.show()
         a = 10
 
 
