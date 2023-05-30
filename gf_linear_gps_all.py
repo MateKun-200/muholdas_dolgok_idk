@@ -22,13 +22,14 @@ time_diff_seconds = time_diff.total_seconds()
 seconds_array = np.arange(0, int(time_diff_seconds) + 2)
 
 # RINEX fájl megfelelő adatainak beolvasása
-obs_data = gr.load(rinex_file, tlim=[start_date, end_date], meas=['C1C', 'C2W'], use="G")
+obs_data = gr.load(rinex_file, tlim=[start_date, end_date], meas=[
+                   'L1C', 'L2W'], use="G")
 
 # Geometriamentes lineáris kombinációk számítása (GPS)
-lambda1 = 0.1903 # L1 hullámhossz
-lambda2 = 0.2442 # L2 hullámhossz
-c1c_values = obs_data['C1C'] # L1 C/A pszeudotávolság
-c2l_values = obs_data['C2W'] # L2 Z pszeudotávolság
+lambda1 = 0.1903  # L1 hullámhossz
+lambda2 = 0.2442  # L2 hullámhossz
+c1c_values = obs_data['C1C']  # L1 C/A pszeudotávolság
+c2l_values = obs_data['C2W']  # L2 Z pszeudotávolság
 c1c_c2l_diff = ((c1c_values/lambda1) - (c2l_values/lambda2))
 
 # GPS műholdak adatainak számítása for ciklussal és plottolás az idő (UTC) függvényében
@@ -41,7 +42,8 @@ for sat in satellite_prn:
     times = np.empty(len(c1c_c2l_diff), dtype=object)
 
     for time in range(len(c1c_c2l_diff)):
-        actual_diff_for_time_and_satellite = c1c_c2l_diff[time][index_of_satellite].values.ravel()
+        actual_diff_for_time_and_satellite = c1c_c2l_diff[time][index_of_satellite].values.ravel(
+        )
         diff_of_satellite_mes[time] = actual_diff_for_time_and_satellite
         times[time] = start_datetime + timedelta(seconds=time)
 

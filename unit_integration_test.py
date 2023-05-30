@@ -2,6 +2,7 @@
 import os
 import unittest
 from matplotlib import pyplot as plt
+from matplotlib.dates import DateFormatter
 
 import numpy as np
 import xarray
@@ -36,7 +37,7 @@ class SatelliteDataTests(unittest.TestCase):
         start_timestamp = time.time()
         obs_file = file_reader(file_name)
         obs_data = gr.load(
-            obs_file, tlim=[very_start_date, small_end_date], meas=['C1C', 'L1C'])
+            obs_file, tlim=[very_start_date, small_end_date], meas=['L1C', 'L2W'])
         end_timestamp = time.time()
         print(
             f"time needed to load the data is {end_timestamp-start_timestamp} second")
@@ -130,10 +131,33 @@ class SatelliteDataTests(unittest.TestCase):
         plt.show()
         a = 10
 
+    def test_if_can_be_plotted_with_multiple_sattelites(self):
+        obs_file = file_reader(file_name)
+        obs_data = gr.load(
+            obs_file, tlim=[very_start_date, small_end_date], meas=['L1C', 'L2W'], use="G")
+        satellite_prn = np.unique(obs_data.sv)
+        c1c_values = obs_data['L1C']
+        l1c_values = obs_data['L2W']
+        c1c_l1c_diff = c1c_values - l1c_values
+        fig, ax = plt.subplots()
+        for sat in satellite_prn:
+            current_satellite = c1c_l1c_diff.sel(
+                sv=sat).dropna(dim='time', how='all')
+            plt.plot(current_satellite.time, current_satellite, label=sat)
+        plt.xlabel('Time')
+        date_formatter = DateFormatter("%H:%M")
+        ax.xaxis.set_major_formatter(date_formatter)
+        plt.xticks(rotation=90)
+        plt.ylabel('Geometry-free Linear Combination (L1-L2)')
+        plt.title('Satellite Data')
+        plt.legend()
+        plt.show()
+        a = 10
+
     def test_for_converting_obs_into_netcdf(self):
         obs_file = file_reader(file_name)
         obs_data = gr.load(
-            obs_file, tlim=[very_start_date, very_end_date], meas=['C1C', 'L1C'], use="E")
+            obs_file, tlim=[very_start_date, very_end_date], meas=['L1C', 'L2W'], use="G")
         obs_data.to_netcdf('process.nc')
         a = 10
 
